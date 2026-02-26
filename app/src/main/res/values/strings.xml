@@ -10,4 +10,7 @@
     <string name="created_at">Created at: %1$s</string>
     <string name="new_ribbon">New</string>
     <string name="contentDescription_go_back">Go back</string>
+    <string name="edit">Edit</string>
+    <string name="edit_customer">Edit customer</string>
+    <string name="customer_save_error">Unable to save customer</string>
 </resources>

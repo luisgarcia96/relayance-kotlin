@@ -20,6 +20,13 @@ class MainActivity : AppCompatActivity() {
         setupFab()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (::customerAdapter.isInitialized) {
+            customerAdapter.submitList(DummyData.customers)
+        }
+    }
+
     private fun setupFab() {
         binding.addCustomerFab.setOnClickListener {
             val intent = Intent(this, AddCustomerActivity::class.java)

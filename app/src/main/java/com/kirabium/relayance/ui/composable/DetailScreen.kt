@@ -20,12 +20,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,12 +38,20 @@ import com.kirabium.relayance.domain.model.Customer
 import com.kirabium.relayance.extension.DateExt.Companion.toHumanDate
 import java.util.Date
 
+object DetailTestTags {
+    const val CUSTOMER_NAME = "detail_customer_name"
+    const val CUSTOMER_EMAIL = "detail_customer_email"
+    const val CUSTOMER_DATE = "detail_customer_date"
+    const val NEW_RIBBON = "detail_new_ribbon"
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     modifier: Modifier = Modifier,
     customer: Customer,
     onBackClick: () -> Unit,
+    onEditClick: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier,
@@ -58,6 +68,11 @@ fun DetailScreen(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = stringResource(id = R.string.contentDescription_go_back)
                         )
+                    }
+                },
+                actions = {
+                    TextButton(onClick = onEditClick) {
+                        Text(text = stringResource(id = R.string.edit))
                     }
                 }
             )
@@ -83,6 +98,7 @@ fun DetailScreen(
                     ) {
                         Text(
                             text = customer.name,
+                            modifier = Modifier.testTag(DetailTestTags.CUSTOMER_NAME),
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold
@@ -91,6 +107,7 @@ fun DetailScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = customer.email,
+                            modifier = Modifier.testTag(DetailTestTags.CUSTOMER_EMAIL),
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontSize = 16.sp
                             )
@@ -98,6 +115,7 @@ fun DetailScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text =  stringResource(id = R.string.created_at, customer.createdAt.toHumanDate()),
+                            modifier = Modifier.testTag(DetailTestTags.CUSTOMER_DATE),
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontSize = 16.sp
                             )
@@ -110,6 +128,7 @@ fun DetailScreen(
                                 .offset(x = 24.dp, y = (-24).dp)
                                 .rotate(45f)
                                 .background(Color.Red)
+                                .testTag(DetailTestTags.NEW_RIBBON)
                                 .padding(8.dp)
                         ) {
                             Text(
@@ -129,5 +148,8 @@ fun DetailScreen(
 @Preview
 @Composable
 private fun DetailScreenPreview() {
-    DetailScreen(customer = Customer(0, "Nom du Client", "email@client.com", Date())) {}
+    DetailScreen(
+        customer = Customer(0, "Nom du Client", "email@client.com", Date()),
+        onBackClick = {}
+    )
 }

@@ -6,7 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kirabium.relayance.databinding.CustomerItemBinding
 import com.kirabium.relayance.domain.model.Customer
 
-class CustomerAdapter(private val customers: List<Customer>, private val onClick: (Customer) -> Unit) : RecyclerView.Adapter<CustomerAdapter.CustomerViewHolder>() {
+class CustomerAdapter(customers: List<Customer>, private val onClick: (Customer) -> Unit) : RecyclerView.Adapter<CustomerAdapter.CustomerViewHolder>() {
+
+    private val items = customers.toMutableList()
 
     class CustomerViewHolder(private val binding: CustomerItemBinding, val onClick: (Customer) -> Unit) : RecyclerView.ViewHolder(binding.root) {
         private var currentCustomer: Customer? = null
@@ -34,9 +36,15 @@ class CustomerAdapter(private val customers: List<Customer>, private val onClick
     }
 
     override fun onBindViewHolder(holder: CustomerViewHolder, position: Int) {
-        val customer = customers[position]
+        val customer = items[position]
         holder.bind(customer)
     }
 
-    override fun getItemCount() = customers.size
+    override fun getItemCount() = items.size
+
+    fun submitList(customers: List<Customer>) {
+        items.clear()
+        items.addAll(customers)
+        notifyDataSetChanged()
+    }
 }
