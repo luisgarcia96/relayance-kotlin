@@ -10,6 +10,7 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+    /** Verifie le test d'exemple de base pour valider la configuration JUnit locale. */
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
