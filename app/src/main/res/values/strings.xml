@@ -13,4 +13,5 @@
     <string name="edit">Edit</string>
     <string name="edit_customer">Edit customer</string>
     <string name="customer_save_error">Unable to save customer</string>
+    <string name="customer_saved_success">Customer saved</string>
 </resources>

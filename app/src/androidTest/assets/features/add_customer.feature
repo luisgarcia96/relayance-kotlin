@@ -10,6 +10,7 @@ Feature: Add customer
     And I enter "john.doe@example.com" as the customer email
     And I save the customer
     Then I return to the customer list
+    And I see a message confirming that the customer was saved
     And I see "John Doe" in the customer list
     And I see "john.doe@example.com" for this customer
 

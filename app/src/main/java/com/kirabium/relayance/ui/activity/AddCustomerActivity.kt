@@ -2,12 +2,12 @@ package com.kirabium.relayance.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.snackbar.Snackbar
 import com.kirabium.relayance.R
 import com.kirabium.relayance.databinding.ActivityAddCustomerBinding
 import com.kirabium.relayance.ui.event.AddCustomerUiEvent
@@ -90,7 +90,11 @@ class AddCustomerActivity : AppCompatActivity() {
                 viewModel.uiEvents.collect { event ->
                     when (event) {
                         is AddCustomerUiEvent.ShowMessage -> {
-                            Toast.makeText(this@AddCustomerActivity, event.messageResId, Toast.LENGTH_SHORT).show()
+                            Snackbar.make(
+                                binding.root,
+                                event.messageResId,
+                                Snackbar.LENGTH_SHORT,
+                            ).show()
                         }
 
                         AddCustomerUiEvent.CustomerSaved -> {
