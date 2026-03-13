@@ -1,13 +1,23 @@
 package com.kirabium.relayance.ui.activity
+
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.kirabium.relayance.data.DummyData
 import com.kirabium.relayance.databinding.ActivityMainBinding
 import com.kirabium.relayance.ui.adapter.CustomerAdapter
+import com.kirabium.relayance.ui.viewmodel.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var customerAdapter: CustomerAdapter
@@ -18,13 +28,7 @@ class MainActivity : AppCompatActivity() {
         setupBinding()
         setupCustomerRecyclerView()
         setupFab()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (::customerAdapter.isInitialized) {
-            customerAdapter.submitList(DummyData.customers)
-        }
+        observeUiState()
     }
 
     private fun setupFab() {
@@ -36,13 +40,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCustomerRecyclerView() {
         binding.customerRecyclerView.layoutManager = LinearLayoutManager(this)
-        customerAdapter = CustomerAdapter(DummyData.customers) { customer ->
+        customerAdapter = CustomerAdapter { customer ->
             val intent = Intent(this, DetailActivity::class.java).apply {
                 putExtra(DetailActivity.EXTRA_CUSTOMER_ID, customer.id)
             }
             startActivity(intent)
         }
         binding.customerRecyclerView.adapter = customerAdapter
+    }
+
+    private fun observeUiState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    customerAdapter.submitList(state.customers)
+                }
+            }
+        }
     }
 
     private fun setupBinding() {
