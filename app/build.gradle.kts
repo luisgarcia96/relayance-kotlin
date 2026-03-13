@@ -1,4 +1,5 @@
-import com.android.build.gradle.BaseExtension
+import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -13,6 +14,11 @@ tasks.withType<Test> {
         excludes = listOf("jdk.internal.*")
     }
 }
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
 android {
     namespace = "com.kirabium.relayance"
     compileSdk = 34
@@ -72,26 +78,64 @@ android {
     }
 }
 
-val androidExtension = extensions.getByType<BaseExtension>()
+val jacocoClassExclusions = listOf(
+    "**/R.class",
+    "**/R$*.class",
+    "**/BuildConfig.*",
+    "**/Manifest*.*",
+    "**/*Test*.*",
+    "**/*\$Lambda$*.*",
+    "**/*\$inlined$*.*",
+    "**/*\$serializer*.*",
+    "**/*Companion*.*",
+    "**/*Preview*.*",
+    "**/ComposableSingletons$*.*",
+    "**/*_Factory*.*",
+    "**/*_Provide*Factory*.*",
+    "**/*_MembersInjector*.*",
+    "**/*_HiltModules*.*",
+    "**/Hilt_*.*",
+    "**/*_GeneratedInjector*.*",
+    "**/*_ComponentTreeDeps*.*",
+    "**/*_AggregatedDeps*.*",
+    "**/databinding/*.*",
+    "**/*Binding.*",
+)
 
 val jacocoTestReport by tasks.registering(JacocoReport::class) {
-    dependsOn("testDebugUnitTest", "createDebugCoverageReport")
+    dependsOn("testDebugUnitTest")
     group = "Reporting"
-    description = "Generate Jacoco coverage reports"
+    description = "Generate JaCoCo coverage reports for debug unit tests."
 
     reports {
         xml.required.set(true)
         html.required.set(true)
     }
 
-    val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug")
-    val mainSrc = androidExtension.sourceSets.getByName("main").java.srcDirs
+    val kotlinDebugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+        exclude(jacocoClassExclusions)
+    }
+    val javaDebugTree = fileTree(layout.buildDirectory.dir("intermediates/javac/debug/classes")) {
+        exclude(jacocoClassExclusions)
+    }
 
-    classDirectories.setFrom(debugTree)
-    sourceDirectories.setFrom(files(mainSrc))
-    executionData.setFrom(fileTree(buildDir) {
-        include("**/*.exec", "**/*.ec")
-    })
+    classDirectories.setFrom(files(kotlinDebugTree, javaDebugTree))
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(
+        layout.buildDirectory.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+    )
+}
+
+tasks.register("androidTestCoverageReport") {
+    dependsOn("createDebugCoverageReport")
+    group = "Reporting"
+    description = "Generate the Android test coverage report for the debug build."
+}
+
+tasks.register("coverageReport") {
+    dependsOn("jacocoTestReport", "androidTestCoverageReport")
+    group = "Reporting"
+    description = "Generate both unit-test and Android-test coverage reports for the debug build."
 }
 
 
